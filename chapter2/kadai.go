@@ -12,17 +12,16 @@ func Calc(slice []int) (int, error) {
 	// ヒント：エラーにも色々な生成方法があるが、ここではシンプルにfmtパッケージの
 	// fmt.Errorf(“invalid op=%s”, op) などでエラー内容を返却するのがよい
 	// https://golang.org/pkg/fmt/#Errorf
-	var ret = 0
-	length := len(slice)
-	switch {
-	case length == 0:
+	var ret int
+	switch len(slice) {
+	case 0:
 		return 0, fmt.Errorf("length is 0")
-	case length <= 2:
+	case 1, 2:
 		ret = 1
 		for _, v := range slice {
 			ret *= v
 		}
-	case length > 2:
+	default:
 		for _, v := range slice {
 			ret += v
 		}
@@ -38,7 +37,7 @@ type Number struct {
 // 3つの要素の中身は[{1} {2} {3}]とし、append関数を使用すること
 func Numbers() []Number {
 	// TODO Q2
-	var ret []Number
+	var ret = make([]Number, 0, 3)
 	ret = append(ret, Number{index: 1}, Number{index: 2}, Number{index: 3})
 	return ret
 }
@@ -48,11 +47,14 @@ func Numbers() []Number {
 // キー「yon」に関しては完全一致すること
 func CalcMap(m map[string]int) int {
 	// TODO Q3
+	v, ok := m["yon"]
+	if ok {
+		delete(m, "yon")
+		defer func() { m["yon"] = v }()
+	}
 	ret := 0
-	for key, value := range m {
-		if key != "yon" {
-			ret += value
-		}
+	for _, value := range m {
+		ret += value
 	}
 	return ret
 }
@@ -64,7 +66,7 @@ type Model struct {
 // 与えられたスライスのModel全てのValueに5を足す破壊的な関数を作成
 func Add(models []Model) {
 	// TODO  Q4
-	for i, _ := range models {
+	for i := range models {
 		models[i].Value += 5
 	}
 }
@@ -74,12 +76,12 @@ func Add(models []Model) {
 // ex) 引数:[]slice{21,21,4,5} 戻り値:[]int{21,4,5}
 func Unique(slice []int) []int {
 	// TODO Q5
-	check := make(map[int]bool)
-	uniq := []int{}
+	check := make(map[int]struct{})
+	uniq := make([]int, 0, len(slice))
 	for _, v := range slice {
-		if !check[v] {
+		if _, ok := check[v]; !ok {
 			uniq = append(uniq, v)
-			check[v] = true
+			check[v] = struct{}{}
 		}
 	}
 	return uniq
