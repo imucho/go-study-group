@@ -1,6 +1,6 @@
 package chapter3
 
-import "fmt"
+import "encoding/json"
 
 // 課題5
 // とあるマスターデータのテーブルの構造をモデル化したstructを作りました。
@@ -24,5 +24,12 @@ func (m Master) Name() string {
 }
 
 func (m Master) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf("{\"id\": %d, \"name\": \"%s\"}", m.id, m.name)), nil
+	type master struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	}
+	return json.Marshal(master{
+		ID:   m.id,
+		Name: m.name,
+	})
 }
