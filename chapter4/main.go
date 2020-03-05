@@ -22,11 +22,18 @@ func main() {
 		reader io.Reader
 	)
 	if len(args) > 0 {
-		var err error
-		reader, err = os.Open(args[0])
+		file, err := os.Open(args[0])
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprint(os.Stderr, err)
+			return
 		}
+		defer func() {
+			err = file.Close()
+			if err != nil {
+				fmt.Fprint(os.Stderr, err)
+			}
+		}()
+		reader = file
 	} else {
 		reader = os.Stdin
 	}
