@@ -54,6 +54,7 @@ func Validate(argc int, fields int) error {
 }
 
 func Cut(r io.Reader, w io.Writer, delimiter string, fields int) error {
+	buffer := bufio.NewWriter(w)
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		text := scanner.Text()
@@ -62,7 +63,12 @@ func Cut(r io.Reader, w io.Writer, delimiter string, fields int) error {
 			return fmt.Errorf("-fの値に該当するデータがありません")
 		}
 		s := sb[fields-1]
-		fmt.Fprintln(w, s)
+		if _, err := buffer.WriteString(fmt.Sprintln(s)); err != nil {
+			return err
+		}
+	}
+	if err := buffer.Flush(); err != nil {
+		return err
 	}
 	return scanner.Err()
 }
